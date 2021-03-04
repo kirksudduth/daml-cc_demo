@@ -1,0 +1,48 @@
+{- makes file portable and packagable -}
+module CreditCard where
+
+{- defining data type for use in template -}
+data Rewards = Points | Cashback | Perks
+  deriving (Eq, Show)
+
+{- templates define behavior, data, and rights and obligations associated with smart contracts on ledger-}
+template CreditCard
+  with
+    owner: Party
+    underwriter: Party
+    {- using the data type created on line 5 -}
+    ccType: Rewards
+    limit: Decimal
+    name: Text
+    expiry: Date
+    number: Int
+    currency: Text
+    balance: Decimal
+  where
+    signatory underwriter, owner
+
+    ensure underwriter /= owner
+
+template CreditCardApplication
+  with
+    owner: Party
+    underwriter: Party
+    ccType: Rewards
+    name: Text
+    currency: Text
+  where
+  {- signatorys oblige all the future consequences of the contract -}
+    signatory owner
+
+    controller underwriter can
+      IssueCreditCard: ContractId CreditCard
+        with
+          limit: Decimal
+          expiry: Date
+          number: Int
+        do
+          -- archive self
+          create CreditCard
+            with
+              balance = 0.0
+              ..
