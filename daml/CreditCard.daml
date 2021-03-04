@@ -46,3 +46,29 @@ template CreditCardApplication
             with
               balance = 0.0
               ..
+
+      Decline: ContractId DeclinedApplication
+        with
+          reason: Text
+          suggestedCcType: Rewards
+        do
+          create DeclinedApplication with ..
+
+template DeclinedApplication
+  with
+    owner: Party
+    underwriter: Party
+    suggestedCcType: Rewards
+    name: Text
+    currency: Text
+    reason: Text
+  where
+    signatory owner, underwriter
+
+    controller owner can
+      RequestNewCard: ContractId CreditCardApplication
+        do
+          create CreditCardApplication
+            with
+              ccType = suggestedCcType
+              ..
